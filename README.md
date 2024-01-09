@@ -2706,7 +2706,9 @@ SingleProduct.jsx
 ```js
 import { useDispatch } from 'react-redux';
 import { addItem } from '../features/cart/cartSlice';
+
 const SingleProduct = () => {
+
   const dispatch = useDispatch();
   const cartProduct = {
     cartID: product.id + productColor,
@@ -2722,6 +2724,7 @@ const SingleProduct = () => {
   const addToCart = () => {
     dispatch(addItem({ product: cartProduct }));
   };
+
   return (
     <section>
       ....
@@ -3318,6 +3321,7 @@ CartItem.jsx
 import { formatPrice, generateAmountOptions } from '../utils';
 import { removeItem, editItem } from '../features/cart/cartSlice';
 import { useDispatch } from 'react-redux';
+
 const CartItem = ({ cartItem }) => {
   const dispatch = useDispatch();
 

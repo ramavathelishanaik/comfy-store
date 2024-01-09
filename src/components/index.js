@@ -1,5 +1,7 @@
 export {default as FormSelect} from './formSelect'
 export {default as FormInput} from './formInput'
+export {default as FormRange} from './formRange'
+export {default as FormCheckbox} from './formcheckbox'
 export {default as SubmitButton} from './submitButton'
 export {default as Header} from './header'
 export {default as Navbar} from './navbar'
@@ -11,6 +13,11 @@ export {default as FeaturedProducts} from './featuredProducts'
 export {default as FilterContainer} from './filterContainer'
 export {default as PaginationContainer} from './paginationContainer'
 export {default as ProductsContainer} from './productsContainer'
+export {default as Loading} from './loading'
+export {default as CartItemList} from './cartItemList'
+export {default as CartTotal} from './cartTotal'
+
+
 
 
 

@@ -10,6 +10,8 @@ import {loader as singleProductLoader} from './pages/SingleProduct'
 import {loader as productsLoader} from './pages/Products'
 
 
+
+
 export default function App() {
 
   const router = createBrowserRouter([
