@@ -16,6 +16,11 @@ export {default as ProductsContainer} from './productsContainer'
 export {default as Loading} from './loading'
 export {default as CartItemList} from './cartItemList'
 export {default as CartTotal} from './cartTotal'
+export {default as CheckoutForm} from './checkoutForm'
+export {default as OrderList} from './orderList'
+export {default as ComplexPaginationContainer} from './complexPagination'
+
+
 
 
 

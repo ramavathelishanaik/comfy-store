@@ -8,6 +8,17 @@ import {ErrorElement} from './components/index';
 import {loader as landingLoader} from './pages/Landing'
 import {loader as singleProductLoader} from './pages/SingleProduct'
 import {loader as productsLoader} from './pages/Products'
+import {loader as checkoutLoader} from './pages/Checkout'
+import {loader as orderLoader} from './pages/Orders'
+
+
+//actions
+import {action as registerActon} from './pages/Register'
+import { action as loginAction } from './pages/Login';
+import { action as checkoutAction } from './components/checkoutForm';
+
+
+import { store } from './store';
 
 
 
@@ -42,19 +53,26 @@ export default function App() {
         },
         {
           path: 'cart',
-          element: <Cart />
+          element: <Cart />,
+          errorElement: <ErrorElement/>,
         },
         {
           path: 'checkout',
-          element: <Checkout/>
+          element: <Checkout/>,
+          errorElement: <ErrorElement/>,
+          loader: checkoutLoader(store),
+          action: checkoutAction(store)
         },
         {
           path: 'about',
-          element: <About />
+          element: <About />,
+          errorElement: <ErrorElement/>,
         },
         {
           path: 'orders',
-          element:<Orders />
+          element:<Orders />,
+          errorElement: <ErrorElement/>,
+          loader: orderLoader(store)
 
         }
       ]
@@ -63,12 +81,14 @@ export default function App() {
     {
       path: 'login',
       element: <Login/>,
-      errorElement: <Error />
+      errorElement: <Error />,
+      action: loginAction(store)
     },
     {
       path: 'register',
       element: <Register/>,
-      errorElement: <Error />
+      errorElement: <Error />,
+      action: registerActon
     }
 
   ])
