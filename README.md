@@ -1,3 +1,651 @@
+## Useful Project flow
+
+## Pages:-
+
+# HomepageLayout:
+ we have different component like Header, Navbar and Footer etc...
+ And we have different pages like Landing, About, Products, Cart, Checkout, Orders, Login and Register etc...
+ Here the main thing is, the Header, Navbar and Footer are not present in login and register pages
+ So to make them present ( Header,Navbar and Footer ), only in the above mentioned pages and not in the login and register..
+
+  - we are Using and Desinging the Route Struture and Outlet
+  - Before struturing the routes, Firstly we need to pick a route... and we pick the latest v6.4 DATA APIs routes.
+
+  ```js
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <HomeLayout />,
+      errorElement: <Error />,
+      children:[
+        {
+          index: true,
+          element: <Landing />,
+          errorElement: <ErrorElement/>,
+          loader: landingLoader
+        },
+        {
+          path: 'products',
+          element: <Products />,
+          errorElement: <ErrorElement/>,
+          loader: productsLoader
+
+          
+        },
+        {
+          path: 'products/:productsId',
+          element: <SingleProduct />,
+          errorElement: <ErrorElement/>,
+          loader: singleProductLoader
+        },
+        {
+          path: 'cart',
+          element: <Cart />,
+          errorElement: <ErrorElement/>,
+        },
+        {
+          path: 'checkout',
+          element: <Checkout/>,
+          errorElement: <ErrorElement/>,
+          loader: checkoutLoader(store),
+          action: checkoutAction(store)
+        },
+        {
+          path: 'about',
+          element: <About />,
+          errorElement: <ErrorElement/>,
+        },
+        {
+          path: 'orders',
+          element:<Orders />,
+          errorElement: <ErrorElement/>,
+          loader: orderLoader(store)
+
+        }
+      ]
+
+    },
+    {
+      path: 'login',
+      element: <Login/>,
+      errorElement: <Error />,
+      action: loginAction(store)
+    },
+    {
+      path: 'register',
+      element: <Register/>,
+      errorElement: <Error />,
+      action: registerActon
+    }
+
+  ])
+  ```
+
+Like as we mentioned earlier, logina and register pages won't contain the Header, Navbar and Footer. So they given as direct object in the createBrowserRouter.
+
+And all remaining pages will have the Header, Navbar and Footer right...so we are Creating a Layout where the Header, Navbar and Footer are added/present because there are common in every remaining pages.
+
+Now just based on PATH we need to pass the particular page into HOMEPAGE LAYOUT, In homwpage layout we have OUTLEY COMPONENT right...Ii will render that page.
+
+#### now when going back and forth in HOMELAYOUT pages like Landing, About, Products etc...Those page will take mainute time to LOAD right...
+
+now showing BLANK page during the time of loading is not right. so we are showing a LOADING SPINNER.
+
+Loading.jsx
+
+```js
+const Loading = () => {
+    return (
+      <div className='h-screen flex items-center justify-center'>
+        <span className='loading loading-ring loading-lg' />
+      </div>
+    );
+  };
+  export default Loading
+```
+
+
+#### Here the main point is how we caught the LOADING TIME
+
+1. we are using the useNavigation Data API form react-router-dom. From that we are getting page loading status.
+2. if the status is LOADING, we are showing the spinner, otherwise the corresponing page.
+
+Homelayout.jsx
+
+```js
+import { Outlet,useNavigation } from "react-router-dom";
+import { Header,Navbar,Loading } from '../components';
+
+const HomeLayout = () => {
+  const navigation = useNavigation();
+  const isPageLoading = navigation.state === 'loading';
+
+
+  return (
+    <>
+    <Header />
+    <Navbar />
+    {isPageLoading ? (
+        <Loading/>
+      ) : (
+        <section className='align-element py-20'>
+          <Outlet />
+        </section>
+      )}
+    </>
+  )
+}
+
+export default HomeLayout
+```
+
+### referance
+
+## useNavigation
+This hook tells you everything you need to know about a page navigation to build pending navigation indicators and optimistic UI on data mutations. Things like:
+
+- Global loading indicators
+- Disabling forms while a mutation is happening
+- Adding busy indicators to submit buttons
+- Optimistically showing a new record while it's being created on the server
+- Optimistically showing the new state of a record while it's being updated
+- This feature only works if using a data router, see Picking a Router
+
+```js
+import { useNavigation } from "react-router-dom";
+
+function SomeComponent() {
+  const navigation = useNavigation();
+  navigation.state;
+  navigation.location;
+  navigation.formData;
+  navigation.json;
+  navigation.text;
+  navigation.formAction;
+  navigation.formMethod;
+  navigation.formEncType;
+}
+```
+
+
+##### Error in Homepage Layout:
+1. For the errorElement props in homepage layout we <Error> element component as error boundary.
+2. In that error element component we are checking 2 types of errors.
+      - is the given path route page is present or not ( we know that, under homepage layout we have 6 childrens) , if any of this path is not matched,  then we get this error
+      - is there any internal page (code errore) ex: syntax etc..
+
+### And for the child pages of homepage layout we have different Error Boundary component:
+1. the top <Error> element component for the homepage layout and path = '/' , is to check path errors and is there any code/syntax error in HOMEPAGE.jsx
+2. the <ErrorElement> element component take care about errors in individual child pages.
+
+### To check the page not found (path errrors):
+1. we are using useRouteError from react-router-dom. From that we are getting PAGE NOT FOUND ( 404 ) error status.
+2. if the status is equal to 404, we are showing the PAGE NOT FOUND ERROR IN THE UI, otherwise the corresponing page.
+
+REFERANCE
+
+## useRouteError
+Inside of an errorElement, this hook returns anything thrown during an (( action, loader, or rendering )). Note that thrown responses have special treatment, see isRouteErrorResponse for more information. 
+
+```js
+import {useRouteError,Link} from 'react-router-dom'
+const Error = () => {
+  const error = useRouteError();
+  
+  if (error.status === 404)
+    return (
+      <main className='grid min-h-[100vh] place-items-center px-8 '>
+        <div className='text-center'>
+          <p className='text-9xl font-semibold text-primary'>404</p>
+          <h1 className='mt-4 text-3xl font-bold tracking-tight sm:text-5xl'>
+            Page not found <spa>{error.data}</spa>
+          </h1>
+          <p className='mt-6 text-lg leading-7 '>
+            Sorry, we couldn’t find the page you’re looking for.
+          </p>
+          <div className='mt-10 '>
+            <Link to='/' className='btn btn-secondary'>
+              Go back home
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+
+  return (
+    <main className='grid min-h-[100vh] place-items-center px-8 '>
+      <h4 className='text-center font-bold text-4xl'>there was an error in the page... main homepagelayout route </h4>
+    </main>
+  );
+}
+
+export default Error
+
+```
+
+## Homepage Layout index = true:
+when the app start/render first, Homepage layout element is the base root right...but for this base page we have 6 different pages as props.
+
+### now the question is which page should be render when the app start/runs:
+- By placing index = true , on <Landing> page , it becomes the default page to the homepage layout. And later based path speified other pages will render in homepagelayout.
+
+
+
+
+
+
+# Landing page:
+
+1. for the landingpage we have loader function, means before rendering the landing page the loader function will be called. and it is async function and it is return PRODUCTS as result
+
+2. we have 2 child components in landing page named HERO, FREATURED PRODUCTS..
+
+3. We used the loader function in the landing page itself right... so, we can use it's returned data in any child (hero, featured products or at level nested)
+
+### loader 
+
+Each route can define a "loader" function to provide data to the route element before it renders.
+This feature only works if using a data router, see Picking a Router
+
+```js
+createBrowserRouter([
+  {
+    element: <Teams />,
+    path: "teams",
+    loader: async () => {
+      return fakeDb.from("teams").select("*");
+    },
+    children: [
+      {
+        element: <Team />,
+        path: ":teamId",
+        loader: async ({ params }) => {
+          return fetch(`/api/teams/${params.teamId}.json`);
+        },
+      },
+    ],
+  },
+]);
+
+```
+
+As the user navigates around the app, the loaders for the next matching branch of routes will be called in parallel and their data made available to components through useLoaderData.
+
+and our loader
+```js
+import Hero from '../components/hero'
+import { FeaturedProducts } from '../components';
+import {customFetch} from '../utils/index'
+
+const url = '/products?featured=true';
+
+export const loader = async () => {
+  const response = await customFetch(url);
+  const products = response.data.data;
+  return { products };
+};
+
+
+const Landing = () => {
+  return (
+    <>
+    <Hero />
+    <FeaturedProducts />
+    
+    </>
+  )
+}
+
+export default Landing
+```
+### calling in App.js
+
+```js
+   children:[
+        {
+          index: true,
+          element: <Landing />,
+          errorElement: <ErrorElement/>,
+          loader: landingLoader
+        },
+   ]
+```
+
+### we are using the loader function in the landing page right and it returning the products array as result. Now how can we read the returned data of loader function.
+
+useloaderData()
+
+```js
+import { Link, useLoaderData } from 'react-router-dom';
+import { formatPrice } from '../utils';
+const ProductsGrid = () => {
+    const { products } = useLoaderData();
+
+    return (
+      <div className='pt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3 '>
+        {products.map((product) => {
+          const { title, price, image } = product.attributes;
+          const dollarsAmount = formatPrice(price)
+          return (
+            <Link
+              key={product.id}
+              to={`/products/${product.id}`}
+              className='card w-full  shadow-xl hover:shadow-2xl transition duration-300 '
+            >
+              <figure className='px-4 pt-4'>
+                <img
+                  src={image}
+                  alt={title}
+                  className='rounded-xl h-64 md:h-48 w-full object-cover'
+                />
+              </figure>
+              <div className='card-body items-center text-center'>
+                <h2 className='card-title capitalize tracking-wider'>{title}</h2>
+                <span className='text-secondary'>{dollarsAmount}</span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    );
+}
+
+export default ProductsGrid
+
+```
+
+##### above we got all products using the useLoaderData Hook and using products data we render the featured Products ui
+
+
+
+
+
+
+
+
+# ABOUT PAGE:
+ - In this page we are simply render about content.
+
+
+
+# PRODUCTS PAGE:
+1. In product page we have basically 3 section.
+    - Filter section
+    - Products section
+    - Pagination section.
+
+#### PRODUCTS SECTION:
+1. In products page we have LOADER FUNCTION, means when we comes to this page ( i mean before rendering the page, the loader function will run and get the desired data).
+2. the above loader will return PRODUCTS, META DATA, AND PARAMS. 
+    - where products used to render the products list.
+    - meta data and params used in the pagination container to setup the pagination.
+
+```js
+
+const url = '/products'
+
+export const loader = async ({request}) => {
+
+  const params = Object.fromEntries([
+    ...new URL(request.url).searchParams.entries(),
+  ]);
+  
+  const response = await customFetch(url, { params });
+  const products = response.data.data;
+  const meta= response.data.meta
+  return { products,meta,params };
+
+};
+```
+###### WORKING OF LOADER FUNCTION IN PRODUCTS PAGE:
+1. Firstly the function takes the request parameter as param.
+2. when we go to the products page every time, it will return/render all the products. because SEARCH_PARAMS is equal === empty.
+3. when the user search/filter any product, then we will get the SEARCH_PARAMS. And we passign those SeachParams to FETCH the exact PRODUCTS.
+
+```JS
+new URL(request.url).searchParams
+```
+
+from the above line we wil get the SIZE of the search_params list.
+
+```js
+ ...new URL(request.url).searchParams.entries(),
+```
+
+Now using the ENTRIES() and ... SPREAD OPERATION, we will create/generate an array of arrays with key value pairs.
+
+```js
+ const params = Object.fromEntries([
+    ...new URL(request.url).searchParams.entries(),
+  ]);
+```
+
+And finally with the help of OBJECT.FROM_ENTRIES() we convert the array of arrays into OBJECTS, which we used to passed to FETCHER FUNCTION to as 2nd parameter TO get the desired/exact PRODUCTS which user FILTERED.
+
+Here URL is the base url for this products page.
+
+```JS
+const params = Object.fromEntries([
+    ...new URL(request.url).searchParams.entries(),
+  ]);
+  
+  const response = await customFetch(url, { params });
+```
+
+
+
+
+##### PRODUCTS CONTAINER COMPONENT:
+1. we used the useLoaderData function to get the products data and meta data.
+    - products data to render the list and meta used to show total.no.of products at the top
+
+
+And this component we have 2 scenarios.
+  1. if the total.no.of producta are equal to 0. we are show 'SORRY NOT PRODUCTS FOUND'. Another wise we are checking the patter ( i mean whether it is GRID OR LIST).
+  2.If it is grid we are showing GRID component or else LIST component.
+  3. setActiveStyles fucntion is used to style the active pattern button.
+
+```js
+   const setActiveStyles = (pattern) => {
+        return `text-xl btn btn-circle btn-sm ${
+          pattern === layout
+            ? 'btn-primary text-primary-content'
+            : 'btn-ghost text-base-content'
+        }`;
+      };
+
+```
+
+Finally in GRID and LIST components we are using the useLoaderData function and we get the products and render the list of products.
+
+  - we are NAVIGATING to Single Products page when the user clicks on the products in GRID or LIST components. Because with the help of LINK tag we navigating them (user) to single Procuts page. On which the user clicked.
+
+##### FILTERS CONTAINER COMPONENT:
+1. In this component we are using 6 different types of filter and 2 buttons.
+    - SEARCH,CATEGORY,COMPANY,SORT_BY,PRICE and FREE_SHIPPING and SUBMIT and RESET BUTTONS.
+2. Here we are using the FORM form REACT-ROUTER-DOM.
+    - In side this form we have all the above filters and buttons.
+    - for this form we are using the METHOD = 'GET',
+    - When we submit the form the COMPLETE SEARCH PARAM QUERY GET ADDED TO THE URL.
+
+so when the SEARCH PARAMS ADDED to the URL, and due to submitting the form page got refreshed, and the LOADER FUNCTION IN THE products page will got called.
+
+And form that function we get the COMPLETE URL using the REQUEST PARAMETER, we do the request to get the exact products.
+
+```js
+import { Form,useLoaderData, Link } from 'react-router-dom';
+```
+
+loader function:
+
+```js
+export const loader = async ({request}) => {
+
+  const params = Object.fromEntries([
+    ...new URL(request.url).searchParams.entries(),
+  ]);
+  
+  const response = await customFetch(url, { params });
+  const products = response.data.data;
+  const meta= response.data.meta
+  return { products,meta,params };
+
+};
+```
+
+###### FORM SUBMISSION REFERANCE: (react-router-dom) :- METHOD
+
+This determines the HTTP verb to be used. The same as plain HTML form method, except it also supports "put", "patch", and "delete" in addition to "get" and "post". The default is "get".
+
+GET submissions
+The default method is "get". Get submissions will not call an action. Get submissions are the same as a normal navigation (user clicks a link) except the user gets to supply the search params that go to the URL from the form.
+
+```js
+<Form method="get" action="/products">
+  <input
+    aria-label="search products"
+    type="text"
+    name="q"
+  />
+  <button type="submit">Search</button>
+</Form>
+```
+
+Let's say the user types in "running shoes" and submits the form. React Router emulates the browser and will serialize the form into URLSearchParams and then navigate the user to "/products?q=running+shoes". It's as if you rendered a <Link to="/products?q=running+shoes"> as the developer, but instead you let the user supply the query string dynamically.
+
+Your route loader can access these values most conveniently by creating a new URL from the request.url and then load the data.
+
+```js
+<Route
+  path="/products"
+  loader={async ({ request }) => {
+    let url = new URL(request.url);
+    let searchTerm = url.searchParams.get("q");
+    return fakeSearchProducts(searchTerm);
+  }
+  }
+/>
+```
+
+##### RESET:
+Now when we click on reset button, we just navigating to products page. So page got REFRESHED and MAINLY the SEARCH_PARAMS GOT removed form the URL.
+
+1. Initially when we submit the form by giving some filters and we got the filtered data right...AND the filter inputs the contains the filtered values. BUT WHEN WE REFRESH the page, we are getting the same filtered products based on the url we have. But FILTERED INPUT VALUES GOT CLEARED ( I mean they went to their default vlaues)
+
+2. So MAINLY TO FIX this issue we RETURNED the PARAMS form the loader function and passed down in the filterd container and destructure all the filter values and given as DEFAULT VALUES TO THE filter inupts.
+
+3. so now even we refresh the page the input filter values matches the URL WE HAVE.
+
+#### NOTE:
+when we initially comes to the products page, we find all, all in the filters inputs, so by defalut the select input taking the 1st value as filter values form the given array.
+
+```js
+  {/* BUTTONS */}
+      <button type='submit' className='btn btn-primary btn-sm '>
+        search
+      </button>
+      <Link to='/products' className='btn btn-accent btn-sm'>
+        reset
+      </Link>
+```
+
+
+##### PAGINATION CONTAINER COMPONENT:
+1. Here the main scenartio is, firstly we got the META DATA using the useloaderData function.
+2. we are SHOWING the pagination if pageCount (total.no.of.pages) >= 2.
+    - Now we the know the total.no.of.pages right... so with the help of pageCount and Array.from we created the pages array
+
+    ```js
+     const pages = Array.from({ length: pageCount }, (_, index) => {
+    return index + 1;
+    });
+    ```
+    - and we render the pages array followed by PREV AND NEXT BUTTONS
+
+      ```JS
+      <button
+          className='btn btn-xs sm:btn-md join-item'
+          onClick={() => {
+            let prevPage = page - 1;
+            if (prevPage < 1) prevPage = pageCount;
+            handlePageChange(prevPage);
+          }}
+        >
+          Prev
+        </button>
+        {pages.map((pageNumber) => {
+          return (
+            <button
+              onClick={() => handlePageChange(pageNumber)}
+              key={pageNumber}
+              className={`btn btn-xs sm:btn-md border-none join-item ${
+                pageNumber === page ? 'bg-base-300 border-base-300' : ''
+              }`}
+            >
+              {pageNumber}
+            </button>
+          );
+        })}
+        <button
+          className='btn btn-xs sm:btn-md join-item'
+          onClick={() => {
+            let nextPage = page + 1;
+            if (nextPage > pageCount) nextPage = 1;
+            handlePageChange(nextPage);
+          }}
+        >
+          Next
+        </button>
+      ```
+
+    - NOW when clicking on the particular page number, we need to FETCH the data with respect to that page and render...
+    - For that at the end the URL QUERY  PARAM we have to SET the page=2 etc...
+
+    ```js
+      const location = useLocation();
+      const { search, pathname } = location
+      const navigate = useNavigate();
+
+      const handlePageChange = (pageNumber) => {
+      const searchParams = new URLSearchParams(search);
+      searchParams.set('page', pageNumber);
+      navigate(`${pathname}?${searchParams.toString()}`);
+      };
+    ```
+
+  - And now when clicking on the next prev buttons, we need to set the appropriate logic...
+  ```js
+          onClick={() => {
+          let prevPage = page - 1;
+          if (prevPage < 1) prevPage = pageCount;
+          handlePageChange(prevPage);
+          }}
+  ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Useful Project Resources
 
 - [Complete Project](https://react-vite-comfy-store-v2.netlify.app/)

@@ -16,6 +16,8 @@ export const loader =(store) =>async ({ request }) => {
     ...new URL(request.url).searchParams.entries(),
   ]);
 
+  console.log(params)
+
   try {
     const response = await customFetch.get('/orders', {
       params,

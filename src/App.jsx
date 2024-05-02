@@ -11,16 +11,13 @@ import {loader as productsLoader} from './pages/Products'
 import {loader as checkoutLoader} from './pages/Checkout'
 import {loader as orderLoader} from './pages/Orders'
 
-
 //actions
 import {action as registerActon} from './pages/Register'
 import { action as loginAction } from './pages/Login';
 import { action as checkoutAction } from './components/checkoutForm';
 
-
+//store
 import { store } from './store';
-
-
 
 
 export default function App() {
@@ -93,12 +90,7 @@ export default function App() {
 
   ])
 
-
-
-  
   return (
-    
     <RouterProvider router={router}/>
-    
   )
 }

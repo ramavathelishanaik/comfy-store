@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 const FormSelect = ({ label, name, list, defaultValue, size }) => {
+  console.log(defaultValue)
     return (
       <div className='form-control'>
         <label htmlFor={name} className='label'>

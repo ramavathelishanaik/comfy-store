@@ -18,6 +18,8 @@ const ProductsContainer = () => {
             : 'btn-ghost text-base-content'
         }`;
       };
+
+      
   return (
     <>
        {/* HEADER */}
