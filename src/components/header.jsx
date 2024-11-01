@@ -14,7 +14,7 @@ const Header = () => {
     dispatch(logoutUser());
   };
   return (
-    <header className=" bg-neutral bg-red-500 py-2 text-neutral-content ">
+    <header className=" bg-neutral  py-2 text-neutral-content ">
       <div className="align-element flex justify-center sm:justify-end ">
         {user ? (
           <div className="flex gap-x-2 sm:gap-x-8 items-center">
